@@ -74,3 +74,14 @@ class ZBlock(Block):
             3: [Position(0, 1), Position(1, 0), Position(1, 1), Position(2, 0)]
         }
         self.move(0, 3)
+
+class UBlock(Block):
+    def __init__(self):
+        super().__init__(id=8)
+        self.cells = {
+            0: [Position(1, 0), Position(2, 0), Position(3, 0),Position(3, 1), Position(3, 2), Position(2, 2), Position(1, 2) ],
+            1: [ Position(0, 2), Position(0, 1), Position(0, 0),Position(1, 0), Position(2, 0), Position(2, 1), Position(2, 2) ],
+            2: [ Position(2, 1), Position(1, 1), Position(0, 1), Position(0, 2), Position(0, 3), Position(1, 3) , Position(2, 3)],
+            3: [ Position(0, 1), Position(0, 2), Position(0, 3),Position(1, 3), Position(2, 3),  Position(2, 2) , Position(2, 1)],
+        }
+        self.move(0, 3)

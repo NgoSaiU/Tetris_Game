@@ -1,117 +1,130 @@
-import pygame,sys
+
+
+import pygame, sys
+from button import Button
 from game import Game
 from colors import Colors
 import time
+from datetime import timedelta
 
 pygame.init()
+SCREEN = pygame.display.set_mode((1280, 720))
+pygame.display.set_caption("Menu")
 
-title_font = pygame.font.Font(None, 40)
-score_surface = title_font.render("Score", True, Colors.white)
-next_surface = title_font.render("Next", True, Colors.white)
-game_over_surface = title_font.render("GAME OVER", True, Colors.white)
+BG = pygame.image.load("assets/Background.png")
 
-score_rect = pygame.Rect(320, 55, 170, 60)
-next_rect = pygame.Rect(320, 215, 170, 180)
+def get_font(size): # Returns Press-Start-2P in the desired size
+    return pygame.font.Font("assets/font.ttf", size)
 
-screen = pygame.display.set_mode((500, 620))
-pygame.display.set_caption("Python Tetris") #Tiêu đề của game
+def options():
+	while True:
+		OPTIONS_MOUSE_POS = pygame.mouse.get_pos()
 
-clock = pygame.time.Clock()
-game_state = "menu"
-game = Game()
+		SCREEN.fill("white")
 
-GAME_UPDATE = pygame.USEREVENT
-pygame.time.set_timer(GAME_UPDATE, 200) #Bien toc do roi
+		OPTIONS_TEXT = get_font(45).render("This is the OPTIONS screen.", True, "Black")
+		OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(640, 260))
+		SCREEN.blit(OPTIONS_TEXT, OPTIONS_RECT)
 
-start_time = time.time()
+		OPTIONS_BACK = Button(image=None, pos=(640, 460),
+							  text_input="BACK", font=get_font(75), base_color="Black", hovering_color="Green")
 
+		OPTIONS_BACK.changeColor(OPTIONS_MOUSE_POS)
+		OPTIONS_BACK.update(SCREEN)
 
-def show_start_screen():
-	screen.fill(Colors.dark_blue)
-	title_font = pygame.font.Font(None, 60)
-	start_surface = title_font.render("Python Tetris", True, Colors.white)
-	start_rect = start_surface.get_rect(center=(250, 200))
-	start_button = pygame.Rect(150, 300, 200, 50)
-
-	pygame.draw.rect(screen, Colors.light_blue, start_button)
-	start_text = title_font.render("Start", True, Colors.dark_blue)
-	start_text_rect = start_text.get_rect(center=start_button.center)
-
-	screen.blit(start_surface, start_rect)
-	screen.blit(start_text, start_text_rect)
-
-	pygame.display.update()
-
-	# Lặp qua sự kiện và chờ người dùng nhấn nút Start
-	waiting = True
-	while waiting:
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				pygame.quit()
 				sys.exit()
 			if event.type == pygame.MOUSEBUTTONDOWN:
-				if start_button.collidepoint(event.pos):
-					waiting = False
+				if OPTIONS_BACK.checkForInput(OPTIONS_MOUSE_POS):
+					main_menu()
 
+		pygame.display.update()
 
-def show_game_over_screen():
-	global game_state
-	screen.fill(Colors.dark_blue)
-	title_font = pygame.font.Font(None, 60)
-	game_over_surface = title_font.render("Game Over", True, Colors.white)
-	game_over_rect = game_over_surface.get_rect(center=(250, 200))
-	restart_button = pygame.Rect(150, 300, 200, 50)
-	exit_button = pygame.Rect(150, 350, 100, 50)
+def main_menu():
+	SCREEN = pygame.display.set_mode((1280, 720))
+	while True:
+		SCREEN.blit(BG, (0, 0))
 
-	pygame.draw.rect(screen, Colors.light_blue, restart_button)
-	pygame.draw.rect(screen, Colors.light_blue, exit_button)
+		MENU_MOUSE_POS = pygame.mouse.get_pos()
 
-	restart_text = title_font.render("Restart", True, Colors.dark_blue)
-	exit_text = title_font.render("Exit", True, Colors.white)
+		MENU_TEXT = get_font(100).render("MAIN MENU", True, "#b68f40")
+		MENU_RECT = MENU_TEXT.get_rect(center=(640, 100))
 
-	screen.blit(game_over_surface, game_over_rect)
-	screen.blit(restart_text, restart_text.get_rect(center=restart_button.center))
-	screen.blit(exit_text, exit_text.get_rect(center=exit_button.center))
+		PLAY_BUTTON = Button(image=pygame.image.load("assets/Play Rect.png"), pos=(640, 250),
+							 text_input="PLAY", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+		# OPTIONS_BUTTON = Button(image=pygame.image.load("assets/Options Rect.png"), pos=(640, 400),
+		# 						text_input="OPTIONS", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+		QUIT_BUTTON = Button(image=pygame.image.load("assets/Quit Rect.png"), pos=(640, 400),
+							 text_input="QUIT", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
 
-	pygame.display.update()
+		SCREEN.blit(MENU_TEXT, MENU_RECT)
 
-	# Lặp qua sự kiện và chờ người dùng nhấn nút Restart hoặc Exit
-	waiting = True
-	while waiting:
+		# for button in [PLAY_BUTTON, OPTIONS_BUTTON, QUIT_BUTTON]:
+		# 	button.changeColor(MENU_MOUSE_POS)
+		# 	button.update(SCREEN)
+
+		for button in [PLAY_BUTTON, QUIT_BUTTON]:
+			button.changeColor(MENU_MOUSE_POS)
+			button.update(SCREEN)
+
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				pygame.quit()
 				sys.exit()
 			if event.type == pygame.MOUSEBUTTONDOWN:
-				if restart_button.collidepoint(event.pos):
-					game.reset()
-					game_state = "game"
-					waiting = False
-
-				elif exit_button.collidepoint(event.pos):
+				if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
+					play()
+				# if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
+				# 	options()
+				if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
 					pygame.quit()
 					sys.exit()
-	# pygame.display.update()
+		pygame.display.update()
 
-while True:
-	keys = pygame.key.get_pressed()
-	if game_state == "menu":
-		show_start_screen()
-		game_state = "game"
 
-	if game_state == "game":
+def play():
+	SCREEN.fill("black")
+	title_font = pygame.font.Font(None, 40)
+	score_surface = title_font.render("Score", True, Colors.white)
+	next_surface = title_font.render("Next", True, Colors.white)
+	game_over_surface = title_font.render("GAME OVER", True, Colors.white)
+	time_surface = title_font.render("Time", True, Colors.white)
+	game_restart = title_font.render("RESTART", True, Colors.orange)
+	game_back = title_font.render("BACK", True, Colors.yellow)
+	game_quit = title_font.render("QUIT", True, Colors.red)
 
+	score_rect = pygame.Rect(320, 55, 170, 60)
+	next_rect = pygame.Rect(320, 215, 170, 180)
+	time_rect = pygame.Rect(320, 440, 170, 170)
+
+	screen = pygame.display.set_mode((500, 620))
+
+	pygame.display.set_caption("Python Tetris")  # Tiêu đề của game
+
+	clock = pygame.time.Clock()
+
+	game = Game()
+
+	GAME_UPDATE = pygame.USEREVENT
+	pygame.time.set_timer(GAME_UPDATE, 200)  # Bien toc do roi
+
+
+
+	start_time = time.time()
+
+	while True:
+		keys = pygame.key.get_pressed()
 		current_time = time.time()
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				pygame.quit()
 				sys.exit()
 			if event.type == pygame.KEYDOWN:
-				if game.game_over == True:
-					# game.game_over = False
-					game_state = "game_over"
-					# game.reset()
-
+				# if game.game_over == True :
+				# 	game.game_over = False
+				# 	game.reset()
 				if event.key == pygame.K_LEFT and game.game_over == False:
 					game.move_left()
 				if event.key == pygame.K_RIGHT and game.game_over == False:
@@ -121,45 +134,73 @@ while True:
 					game.update_score(0, 1)
 				if event.key == pygame.K_UP and game.game_over == False:
 					game.rotate()
+
+
 			if keys[pygame.K_DOWN] and game.game_over == False:
 				game.move_down()
 				game.update_score(0, 1)
-
 			if event.type == GAME_UPDATE and game.game_over == False:
-				game.move_down()  #các khối di chuyển xuống
+				game.move_down()  # các khối di chuyển xuống
 
-			if game.game_over:
-				game_state = "game_over"
-				#Source thay xoay các khối sau 2 giây
-				# if current_time - start_time >= 2:
-				# 	# Sau 2 giây, đặt lại thời gian bắt đầu
-				# 	start_time = current_time
-				# 	game.rotate()
+		#Source thay xoay các khối sau 2 giây
+		if current_time - start_time >= 1:
+			# Sau 2 giây, đặt lại thời gian bắt đầu
+			start_time = current_time
+			game.rotate()
 
+		# Drawing
+		score_value_surface = title_font.render(str(game.score), True, Colors.white)
 
-	if game_state == "game_over":
-		show_game_over_screen()
-		print("game over")
-		# break
-		#lỗi chô này
-		# game_state = "menu"
+		screen.fill(Colors.dark_blue)
+		screen.blit(score_surface, (365, 20, 50, 50))
+		screen.blit(next_surface, (375, 180, 50, 50))
 
 
-	#Drawing
-	score_value_surface = title_font.render(str(game.score), True, Colors.white)
+		if game.game_over == True:
+			pygame.draw.rect(screen, Colors.light_blue, time_rect, 0, 10)
+			screen.blit(game_over_surface, (320, 500, 50, 50))
+			screen.blit(game_restart, (320, 535, 50, 50))
+			screen.blit(game_back, (320, 560, 50, 50))
+			screen.blit(game_quit, (415, 560, 50, 50))
 
-	screen.fill(Colors.dark_blue)
-	screen.blit(score_surface, (365, 20, 50, 50))
-	screen.blit(next_surface, (375, 180, 50, 50))
+			if event.type == pygame.MOUSEBUTTONDOWN:
+				mouse_x, mouse_y = event.pos
+				print(mouse_x, mouse_y)
+				#restart
+				if 322 <= mouse_x <= 440 and 536 <= mouse_y <= 557:
+					game.game_over = False
+					game.reset()
 
-	if game.game_over == True:
-		screen.blit(game_over_surface, (320, 450, 50, 50))
+				#back
+				if 326 <= mouse_x <= 397 and 563 <= mouse_y <= 581:
+					game.game_over = False
+					game.reset()
+					main_menu()
+					print("back")
+				#quit
+				if 423 <= mouse_x <= 480 and 566 <= mouse_y <= 579:
+					game.game_over = False
+					game.reset()
+					pygame.quit()
+					print("quit")
 
-	pygame.draw.rect(screen, Colors.light_blue, score_rect, 0, 10)
-	screen.blit(score_value_surface, score_value_surface.get_rect(centerx = score_rect.centerx,
-		centery = score_rect.centery))
-	pygame.draw.rect(screen, Colors.light_blue, next_rect, 0, 10)
-	game.draw(screen)
+		else:
+			game.update_timer()
+			pygame.draw.rect(screen, Colors.light_blue, time_rect, 0, 10)
+			time_remaining_surface = title_font.render(str(timedelta(seconds=max(int(game.countdown_time), 0))),
+													   True, Colors.white)
+			screen.blit(time_remaining_surface, (360, 500, 50, 50))
+			screen.blit(time_surface, (375, 450, 50, 50))
 
-	pygame.display.update()
-	clock.tick(60)
+
+		pygame.draw.rect(screen, Colors.light_blue, score_rect, 0, 10)
+		screen.blit(score_value_surface, score_value_surface.get_rect(centerx=score_rect.centerx,centery=score_rect.centery))
+
+		pygame.draw.rect(screen, Colors.light_blue, next_rect, 0, 10)
+
+		game.draw(screen)
+
+		pygame.display.update()
+		clock.tick(60)
+
+main_menu()
